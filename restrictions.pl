@@ -46,25 +46,38 @@ filled_length_aux([CurSize | T], CurSize, Size) :-
     NextSize is CurSize + 1,
     filled_length_aux(T, NextSize, Size).
 
+is_fulcrum(Val, Output) :-
+    (Val #= -1) #<=> Output.
+
+contains_fulcrum([H | _]) :-
+    is_fulcrum(H, 1).
+contains_fulcrum([_ | T]) :-
+    contains_fulcrum(T).
+
+check_lists_fulcrums(L1, _, _, _, [], [], [], []) :-
+    contains_fulcrum(L1).
+check_lists_fulcrums(_, L2, _, _, [], [], [], []) :-
+    contains_fulcrum(L2).
+check_lists_fulcrums(L1, L2, Len1, Len2, L1, L2, Coeff1, Coeff2) :-
+    reverse_filled_length(Coeff1, Len1),
+    filled_length(Coeff2, Len2).
 
 get_horizontal_lists(_, _, Cols, [_, ColNum], [], [], [], []) :-
     is_in_horizontal_border(Cols, ColNum).
 get_horizontal_lists(Mat, _, Cols, [RowNum, ColNum], Left, Right, LeftCoeff, RightCoeff) :-
     nth0(RowNum, Mat, Row),
     RowPrefix is ColNum,
-    prefix_length(Row, Left, RowPrefix),
-    reverse_filled_length(LeftCoeff, RowPrefix),
+    prefix_length(Row, LeftL, RowPrefix),
     RowSuffix is Cols - ColNum - 1,
-    suffix_length(Row, Right, RowSuffix),
-    filled_length(RightCoeff, RowSuffix).
+    suffix_length(Row, RightL, RowSuffix),
+    check_lists_fulcrums(LeftL, RightL, RowPrefix, RowSuffix, Left, Right, LeftCoeff, RightCoeff).
 
 get_vertical_lists(_, Rows, _, [RowNum, _], [], [], [], []) :-
     is_in_vertical_border(Rows, RowNum).
 get_vertical_lists(Mat, Rows, _, [RowNum, ColNum], Up, Down, UpCoeff, DownCoeff) :-
     get_col(Mat, ColNum, Col),
     ColPrefix is RowNum,
-    prefix_length(Col, Up, ColPrefix),
-    reverse_filled_length(UpCoeff, ColPrefix),
+    prefix_length(Col, UpL, ColPrefix),
     ColSuffix is Rows - RowNum - 1,
-    suffix_length(Col, Down, ColSuffix),
-    filled_length(DownCoeff, ColSuffix).
+    suffix_length(Col, DownL, ColSuffix),
+    check_lists_fulcrums(UpL, DownL, ColPrefix, ColSuffix, Up, Down, UpCoeff, DownCoeff).
