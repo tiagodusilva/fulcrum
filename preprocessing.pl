@@ -59,14 +59,6 @@ zero_col_row(Mat, Rows, _, [Row, Col]) :-
     zero_col(Mat, Col).
 zero_col_row(_, _, _, _).
 
-% Checks if a position is on the border of the matrix
-is_in_border( _, _, [_, 0]).
-is_in_border(_, _, [0, _]).
-is_in_border(_, Cols, [_, Col]) :-
-    Col is Cols - 1.
-is_in_border(Rows, _, [Row, _]) :-
-    Row is Rows - 1.
-
 % Zeroes all unassigned vars of row
 zero_row(Mat, RowNum) :-
     nth0(RowNum, Mat, Row),

@@ -21,10 +21,17 @@ solve :-
 
     % Apply domain
     get_vars_mat(Mat, Vars),
-    domain(Vars, 1, Domain),
+    domain(Vars, 0, Domain),
 
     % Restrictions
-    
+    all_distinct_except_0(Vars),
+    nvalue(N, Vars),
+    N #= Domain #\/ N #= (Domain + 1),
+    restrict_fulcrums(Mat, Rows, Cols, Fulcrums),
+
+    % Labeling
+    write('Labeling'), nl,
+    labeling([], Vars),
 
     % Solution
     show_solution(Mat).
