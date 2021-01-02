@@ -19,6 +19,7 @@ find_dups_aux([A, A | L], [A | Dups]) :-
 % Creates matrix of given size
 create_matrix(0, _, []).
 create_matrix(Rows, Cols, [H | T]) :-
+    Rows > 0,
     length(H, Cols),
     NextRows is Rows - 1,
     create_matrix(NextRows, Cols, T).
