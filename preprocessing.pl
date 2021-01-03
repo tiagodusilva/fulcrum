@@ -74,8 +74,9 @@ set_val([], _).
 set_val([H|T], Val) :-
     var(H),
     H is Val,
-    set_val(T, Val), !.
-set_val([_ | T], Val) :-
+    set_val(T, Val).
+set_val([H | T], Val) :-
+    \+ var(H),
     set_val(T, Val).
 
 get_fulcrum_lines_cols([], [], []).
@@ -84,7 +85,7 @@ get_fulcrum_lines_cols([[Row, Col] | T], [Row | Lines], [Col | Cols]) :-
 
 nullify_cells(Mat, Lines, Cols) :-
     % Cut because we know there is only 1 solution possible
-    nullify_cells_aux(Mat, 0, Lines, Cols), !.
+    nullify_cells_aux(Mat, 0, Lines, Cols).
 
 % We want to nullify cells that respect the following condition:
 % 0 if NOT col OR NOT Row
@@ -103,6 +104,10 @@ nullify_cells_aux_lines([_ | T], I, J, Lines, Cols) :-
     NextJ is J + 1,
     nullify_cells_aux_lines(T, I, NextJ, Lines, Cols).
 nullify_cells_aux_lines([0 | T], I, J, Lines, Cols) :-
+    \+ (
+        member(I, Lines),
+        member(J, Cols)
+    ),
     NextJ is J + 1,
     nullify_cells_aux_lines(T, I, NextJ, Lines, Cols).
 
@@ -129,9 +134,10 @@ nullify_cells_from_cols(Mat, [H | T]) :-
 flatten([], []).
 flatten([A|B],L) :- 
     is_list(A),
-    flatten(B,B1), !,
+    flatten(B,B1),
     append(A,B1,L).
-flatten([A|B], [A|B1]) :- 
+flatten([A|B], [A|B1]) :-
+    \+ is_list(A),
     flatten(B, B1).
 
 
@@ -144,6 +150,7 @@ get_vars([], []).
 get_vars([A|B], [A|B1]) :- 
     var(A),
     get_vars(B, B1).
-get_vars([_|B], B1) :-
+get_vars([A|B], B1) :-
+    \+ var(A),
     get_vars(B, B1).
 

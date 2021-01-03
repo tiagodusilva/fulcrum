@@ -5,15 +5,18 @@
 % Checks if a position is on the border of the matrix
 is_in_border(_, Cols, [_, Col]) :-
     is_in_horizontal_border(Cols, Col).
-is_in_border(Rows, _, [Row, _]) :-
+is_in_border(Rows, Cols, [Row, Col]) :-
+    \+ is_in_horizontal_border(Cols, Col),
     is_in_vertical_border(Rows, Row).
 
 is_in_horizontal_border(_, 0).
 is_in_horizontal_border(Cols, Col) :-
+    Col #\= 0,
     Col is Cols - 1.
 
 is_in_vertical_border(_, 0).
 is_in_vertical_border(Rows, Row) :-
+    Row #\= 0,
     Row is Rows - 1.
 
 
@@ -52,20 +55,25 @@ is_fulcrum(Val, Output) :-
 
 contains_fulcrum([H | _]) :-
     is_fulcrum(H, 1).
-contains_fulcrum([_ | T]) :-
+contains_fulcrum([H | T]) :-
+    is_fulcrum(H, 0),
     contains_fulcrum(T).
 
 check_lists_fulcrums(L1, _, _, _, [], [], [], []) :-
     contains_fulcrum(L1).
-check_lists_fulcrums(_, L2, _, _, [], [], [], []) :-
+check_lists_fulcrums(L1, L2, _, _, [], [], [], []) :-
+    \+ contains_fulcrum(L1),
     contains_fulcrum(L2).
 check_lists_fulcrums(L1, L2, Len1, Len2, L1, L2, Coeff1, Coeff2) :-
+    \+ contains_fulcrum(L1),
+    \+ contains_fulcrum(L2),
     reverse_filled_length(Coeff1, Len1),
     filled_length(Coeff2, Len2).
 
 get_horizontal_lists(_, _, Cols, [_, ColNum], [], [], [], []) :-
     is_in_horizontal_border(Cols, ColNum).
 get_horizontal_lists(Mat, _, Cols, [RowNum, ColNum], Left, Right, LeftCoeff, RightCoeff) :-
+    \+ is_in_horizontal_border(Cols, ColNum),
     nth0(RowNum, Mat, Row),
     RowPrefix is ColNum,
     prefix_length(Row, LeftL, RowPrefix),
@@ -76,6 +84,7 @@ get_horizontal_lists(Mat, _, Cols, [RowNum, ColNum], Left, Right, LeftCoeff, Rig
 get_vertical_lists(_, Rows, _, [RowNum, _], [], [], [], []) :-
     is_in_vertical_border(Rows, RowNum).
 get_vertical_lists(Mat, Rows, _, [RowNum, ColNum], Up, Down, UpCoeff, DownCoeff) :-
+    \+ is_in_vertical_border(Rows, RowNum),
     get_col(Mat, ColNum, Col),
     ColPrefix is RowNum,
     prefix_length(Col, UpL, ColPrefix),
@@ -124,26 +133,43 @@ get_count_line_cardinality(Domain, [Domain-A | T], Fulcrums, Blanks, DigitsAcc, 
 
 
 
-restrict_digit_count(Mat, Domain, _, Cols) :-
-    restrict_digit_count_rows(Mat, Domain),
-    restrict_digit_count_cols(Mat, Domain, Cols, 0).
+restrict_digit_count(Mat, Domain, _, Cols, RowCount, ColCount) :-
+    restrict_digit_count_rows(Mat, Domain, RowCount),
+    restrict_digit_count_cols(Mat, Domain, Cols, 0, ColCount).
 
-restrict_digit_count_rows([], _).
-restrict_digit_count_rows([Row | Mat], Domain) :-
-    restrict_digit_count_list(Row, Domain),
-    restrict_digit_count_rows(Mat, Domain).
+restrict_digit_count_rows([], _, []).
+restrict_digit_count_rows([Row | Mat], Domain, [Fulcrums-Blanks-Digits | T]) :-
+    restrict_digit_count_list(Row, Domain, Fulcrums-Blanks-Digits),
+    restrict_digit_count_rows(Mat, Domain, T).
     
 
-restrict_digit_count_cols(_, _, Cols, Cols).
-restrict_digit_count_cols(Mat, Domain, Cols, ColNum) :-
+restrict_digit_count_cols(_, _, Cols, Cols, []).
+restrict_digit_count_cols(Mat, Domain, Cols, ColNum, [Fulcrums-Blanks-Digits | T]) :-
     ColNum < Cols,
     get_col(Mat, ColNum, Col),
-    restrict_digit_count_list(Col, Domain),
+    restrict_digit_count_list(Col, Domain, Fulcrums-Blanks-Digits),
     NextCol is ColNum + 1,
-    restrict_digit_count_cols(Mat, Domain, Cols, NextCol).
+    restrict_digit_count_cols(Mat, Domain, Cols, NextCol, T).
 
 
-restrict_digit_count_list(List, Domain) :-
-    count_line(List, Domain, Fulcrums, _, Digits),
+restrict_digit_count_list(List, Domain, Fulcrums-Blanks-Digits) :-
+    count_line(List, Domain, Fulcrums, Blanks, Digits),
     Digits #\= 1,
-    (Digits #= 0) #\/ ((Digits #>= 2) #/\ (Fulcrums #= 1)).
+    (Digits #= 0) #\/ (Fulcrums #= 1).
+
+
+
+restrict_cells_with_empty_col_and_row([], _, _).
+restrict_cells_with_empty_col_and_row([Row | Mat], [R | RowCount], ColCount) :-
+    restr_cells_empty_col(Row, R, ColCount),
+    restrict_cells_with_empty_col_and_row(Mat, RowCount, ColCount).
+
+restr_cells_empty_col([], _, _).
+restr_cells_empty_col([Cell | Cols], _-_-RDigits, [_-_-CDigits | ColCount]) :-
+    ((RDigits #= 0) #/\ (CDigits #= 0)) #<=> 1,
+    Cell #\= -1,
+    restr_cells_empty_col(Cols, _-_-RDigits, ColCount).
+restr_cells_empty_col([_ | Cols], _-_-RDigits, [_-_-CDigits | ColCount]) :-
+    ((RDigits #= 0) #/\ (CDigits #= 0)) #<=> 0,
+    restr_cells_empty_col(Cols, _-_-RDigits, ColCount).
+

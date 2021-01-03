@@ -44,40 +44,45 @@ get_cardinality_list(Domain, [Domain-1 | T]) :-
     get_cardinality_list(NextDomain, T).
 
 
-get_cardinality_list_with_fulcrums(0, [0-A, -1-B]) :-
-    A #>= 0,
-    B #> 0.
+get_cardinality_list_with_fulcrums(0, [0-A, -1-5]) :-
+    A #>= 0.
 get_cardinality_list_with_fulcrums(Domain, [Domain-1 | T]) :-
     Domain > 0,
     NextDomain is Domain - 1,
     get_cardinality_list_with_fulcrums(NextDomain, T).
 
 
-generate :-
-    % Rows is 6,
-    % Cols is 8,
-    % Domain is 6,
-    Rows is 4,
-    Cols is 4,
-    Domain is 4,
+generate(Mat) :-
+    Rows is 6,
+    Cols is 8,
+    Domain is 6,
+    % Rows is 4,
+    % Cols is 4,
+    % Domain is 4,
     % Setup
     create_matrix(Rows, Cols, Mat),
-    get_vars_mat(Mat, Vars),
+    flatten(Mat, Vars),
+    % get_vars_mat(Mat, Vars),
 
     % Restrictions
     domain(Vars, -1, Domain),
     get_cardinality_list_with_fulcrums(Domain, CL),
     % trace,
     global_cardinality(Vars, CL),
+    
+    restrict_digit_count(Mat, Domain, Rows, Cols, RowCount, ColCount),
+    restrict_cells_with_empty_col_and_row(Mat, RowCount, ColCount),
 
-    restrict_digit_count(Mat, Domain, Rows, Cols),
 
     find_fulcrums(Mat, Fulcrums),
     restrict_fulcrums(Mat, Rows, Cols, Fulcrums),
 
+    write(Mat), nl, nl,
+
     % Labeling
     labeling([], Vars),
-    
 
     % Solution
     show_solution(Mat).
+
+
