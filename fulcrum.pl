@@ -29,7 +29,6 @@ solve :-
     restrict_fulcrums(Mat, Rows, Cols, Fulcrums),
 
     % Labeling
-    write('Labeling'), nl,
     labeling([], Vars),
 
     % Solution
