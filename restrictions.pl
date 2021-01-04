@@ -57,7 +57,7 @@ contains_fulcrum([H | _]) :-
     is_fulcrum(H, 1).
 contains_fulcrum([H | T]) :-
     is_fulcrum(H, 0),
-    contains_fulcrum(T).
+    contains_fulcrum(T).    
 
 check_lists_fulcrums(L1, _, _, _, [], [], [], []) :-
     contains_fulcrum(L1).
@@ -115,61 +115,4 @@ find_fulcrums_cols([H | T], RowNum, ColNum, Fulcrums) :-
     is_fulcrum(H, 0),
     NextCol is ColNum + 1,
     find_fulcrums_cols(T, RowNum, NextCol, Fulcrums).
-
-
-
-count_line(Line, Domain, Fulcrums, Blanks, Digits) :-
-    get_count_line_cardinality(Domain, CL, Fulcrums, Blanks, 0, Digits),
-    global_cardinality(Line, CL).
-
-get_count_line_cardinality(0, [0-A, -1-B], B, A, Digits, Digits) :-
-    A #>= 0,
-    B #>= 0.
-get_count_line_cardinality(Domain, [Domain-A | T], Fulcrums, Blanks, DigitsAcc, Digits) :-
-    Domain > 0,
-    NextDomain is Domain - 1,
-    NextDigitsAcc #= DigitsAcc + A,
-    get_count_line_cardinality(NextDomain, T, Fulcrums, Blanks, NextDigitsAcc, Digits).
-
-
-
-restrict_digit_count(Mat, Domain, _, Cols, RowCount, ColCount) :-
-    restrict_digit_count_rows(Mat, Domain, RowCount),
-    restrict_digit_count_cols(Mat, Domain, Cols, 0, ColCount).
-
-restrict_digit_count_rows([], _, []).
-restrict_digit_count_rows([Row | Mat], Domain, [Fulcrums-Blanks-Digits | T]) :-
-    restrict_digit_count_list(Row, Domain, Fulcrums-Blanks-Digits),
-    restrict_digit_count_rows(Mat, Domain, T).
-    
-
-restrict_digit_count_cols(_, _, Cols, Cols, []).
-restrict_digit_count_cols(Mat, Domain, Cols, ColNum, [Fulcrums-Blanks-Digits | T]) :-
-    ColNum < Cols,
-    get_col(Mat, ColNum, Col),
-    restrict_digit_count_list(Col, Domain, Fulcrums-Blanks-Digits),
-    NextCol is ColNum + 1,
-    restrict_digit_count_cols(Mat, Domain, Cols, NextCol, T).
-
-
-restrict_digit_count_list(List, Domain, Fulcrums-Blanks-Digits) :-
-    count_line(List, Domain, Fulcrums, Blanks, Digits),
-    Digits #\= 1,
-    (Digits #= 0) #\/ (Fulcrums #= 1).
-
-
-
-restrict_cells_with_empty_col_and_row([], _, _).
-restrict_cells_with_empty_col_and_row([Row | Mat], [R | RowCount], ColCount) :-
-    restr_cells_empty_col(Row, R, ColCount),
-    restrict_cells_with_empty_col_and_row(Mat, RowCount, ColCount).
-
-restr_cells_empty_col([], _, _).
-restr_cells_empty_col([Cell | Cols], _-_-RDigits, [_-_-CDigits | ColCount]) :-
-    ((RDigits #= 0) #/\ (CDigits #= 0)) #<=> 1,
-    Cell #\= -1,
-    restr_cells_empty_col(Cols, _-_-RDigits, ColCount).
-restr_cells_empty_col([_ | Cols], _-_-RDigits, [_-_-CDigits | ColCount]) :-
-    ((RDigits #= 0) #/\ (CDigits #= 0)) #<=> 0,
-    restr_cells_empty_col(Cols, _-_-RDigits, ColCount).
 

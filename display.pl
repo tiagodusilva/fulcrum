@@ -79,7 +79,7 @@ show_solution([FirstRow | Board]) :-
     put_code(9484),
     print_line_top(FirstRow), nl,
     print_board([FirstRow | Board]),
-    put_code(9492), print_line_bot(FirstRow).
+    put_code(9492), print_line_bot(FirstRow), !.
 
 print_board([Row]) :-
     put_code(9474),

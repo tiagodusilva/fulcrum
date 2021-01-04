@@ -49,15 +49,15 @@ nullify_cells_from_border_fulcrums(Mat, Rows, Cols, [[Row, Col] | T]) :-
 
 % Zeroes out whenever a Fulcrum is on the border
 zero_col_row(Mat, _, _, [Row, 0]) :-
-    zero_row(Mat, Row).
+    zero_row(Mat, Row), !.
 zero_col_row(Mat, _, _, [0, Col]) :-
-    zero_col(Mat, Col).
+    zero_col(Mat, Col), !.
 zero_col_row(Mat, _, Cols, [Row, Col]) :-
     Col is Cols - 1,
-    zero_row(Mat, Row).
+    zero_row(Mat, Row), !.
 zero_col_row(Mat, Rows, _, [Row, Col]) :-
     Row is Rows - 1,
-    zero_col(Mat, Col).
+    zero_col(Mat, Col), !.
 zero_col_row(_, _, _, _).
 
 % Zeroes all unassigned vars of row
