@@ -25,6 +25,11 @@ create_matrix(Rows, Cols, [H | T]) :-
     create_matrix(NextRows, Cols, T).
 
 
+get_row(Mat, RowNum, Row) :-
+    ActualRowNum is RowNum + 1,
+    element(ActualRowNum, Mat, Row).
+
+
 get_col(Mat, ColNum, Col) :-
     ActualColNum is ColNum + 1,
     get_col_aux(Mat, ActualColNum, Col).

@@ -6,12 +6,12 @@ get_cardinality_list(Domain, [Domain-1 | T]) :-
     get_cardinality_list(NextDomain, T).
 
 
-get_cardinality_list_with_fulcrums(0, [0-A, -1-5]) :-
+get_cardinality_list_with_fulcrums(0, NoFulcrums, [0-A, -1-NoFulcrums]) :-
     A #>= 0.
-get_cardinality_list_with_fulcrums(Domain, [Domain-1 | T]) :-
+get_cardinality_list_with_fulcrums(Domain, NoFulcrums, [Domain-1 | T]) :-
     Domain > 0,
     NextDomain is Domain - 1,
-    get_cardinality_list_with_fulcrums(NextDomain, T).
+    get_cardinality_list_with_fulcrums(NextDomain, NoFulcrums, T).
 
 
 count_line(Line, Domain, Fulcrums, Blanks, Digits) :-
@@ -54,6 +54,16 @@ restrict_digit_count_list(List, Domain, Fulcrums-Blanks-Digits) :-
     (Digits #= 0) #\/ (Fulcrums #= 1).
 
 
+force_full_sized_puzzle(RowCount, ColCount) :-
+    RowCount = [FRFulcrums-_-FRDigits | _],
+    ColCount = [FCFulcrums-_-FCDigits | _],
+    last(RowCount, LRFulcrums-_-LRDigits),
+    last(ColCount, LCFulcrums-_-LCDigits),
+    (FRFulcrums #> 0) #\/ (FRDigits #>= 2),
+    (FCFulcrums #> 0) #\/ (FCDigits #>= 2),
+    (LRFulcrums #> 0) #\/ (LRDigits #>= 2),
+    (LCFulcrums #> 0) #\/ (LCDigits #>= 2).
+
 
 restrict_cells_with_empty_col_and_row([], _, _).
 restrict_cells_with_empty_col_and_row([Row | Mat], [R | RowCount], ColCount) :-
@@ -61,8 +71,9 @@ restrict_cells_with_empty_col_and_row([Row | Mat], [R | RowCount], ColCount) :-
     restrict_cells_with_empty_col_and_row(Mat, RowCount, ColCount).
 
 restr_cells_empty_col([], _, _).
-restr_cells_empty_col([Cell | Cols], _-_-RDigits, [_-_-CDigits | ColCount]) :-
-    ((RDigits #= 0) #/\ (CDigits #= 0)) #=> Cell #\= -1,
+restr_cells_empty_col([Cell | Cols], RFulcrums-_-RDigits, [CFulcrums-_-CDigits | ColCount]) :-
+    ((RFulcrums #= 0) #\/ (CFulcrums #= 0) #/\ (Cell #\= -1)) #=> (Cell #= 0),
+    ((RDigits #= 0) #/\ (CDigits #= 0)) #=> (Cell #\= -1),
     restr_cells_empty_col(Cols, _-_-RDigits, ColCount).
 
 

@@ -8,6 +8,14 @@
 :- ensure_loaded('generate.pl').
 
 
+reset_timer :- statistics(walltime,_).    
+print_time :-
+    statistics(walltime,[_,T]),
+    format('Time ~3d sec.~n', [T]).
+    % TS is ((T//10)*10)/1000,
+    % nl, write('Time: '), write(T), write('s'), nl, nl.
+
+
 solve(Mat) :-
     % Setup
     puzzle(Rows, Cols, Domain, Fulcrums),
@@ -33,39 +41,42 @@ solve(Mat) :-
     restrict_fulcrums(Mat, Rows, Cols, Fulcrums),
 
     % Labeling
-    write('Labeling'), nl,
     labeling([], Vars),
 
     % Solution
     show_solution(Mat).
+
+
 
 generate(Mat) :-
     Rows is 6,
     Cols is 8,
     Domain is 6,
+    NoFulcrums is 5,
     % Setup
     create_matrix(Rows, Cols, Mat),
     flatten(Mat, Vars),
 
+    reset_timer,
+
     % Restrictions
     domain(Vars, -1, Domain),
-    get_cardinality_list_with_fulcrums(Domain, CL),
+    get_cardinality_list_with_fulcrums(Domain, NoFulcrums, CL),
     global_cardinality(Vars, CL),
     
-    restrict_digit_count(Mat, Domain, Rows, Cols, RowCount, ColCount),
-    restrict_cells_with_empty_col_and_row(Mat, RowCount, ColCount),
 
-    write('Gonna apply'), nl,
+    restrict_digit_count(Mat, Domain, Rows, Cols, RowCount, ColCount),
+    force_full_sized_puzzle(RowCount, ColCount),
+    restrict_cells_with_empty_col_and_row(Mat, RowCount, ColCount),
 
     % trace,
     apply_fulcrum(Mat, Rows, Cols, Mat, 0, Domain),
 
-    write('Done'), nl,
-
     % Labeling
-    labeling([], Vars),
+    labeling([occurrence], Vars),
+
+    print_time,
 
     % Solution
     show_solution(Mat).
-
 
