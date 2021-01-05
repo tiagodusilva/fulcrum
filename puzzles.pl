@@ -1,4 +1,6 @@
 % puzzle([Rows, Cols, Domain, Fulcrums])
+% Puzzles are identified by their id in the website
+% https://erich-friedman.github.io/puzzle/2Dweight/
 puzzle_example([6, 8, 6, [[2, 0], [1, 3], [5, 5], [0, 6], [2, 7]]]).
 
 puzzle_62([9, 12, 6, [[6, 0], [3, 1], [2, 3], [8, 5], [0, 9], [5, 11]]]).

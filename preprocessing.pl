@@ -1,12 +1,13 @@
 :- use_module(library(lists)).
 :- use_module(library(samsort)).
 
-% FInds the duplicate elements Dups in a list L
+% Finds the duplicate elements Dups in a list L
 find_dups(L, Dups) :-
     samsort(L, SortedL),
     find_dups_aux(SortedL, DupsWithDups),
     remove_dups(DupsWithDups, Dups).
 
+% Finds the duplicates given a samsorted list
 find_dups_aux([], []).
 find_dups_aux([_], []).
 find_dups_aux([_A, B | L], Dups) :-
@@ -138,7 +139,7 @@ nullify_cells_from_cols(Mat, [H | T]) :-
     set_val(Col, 0),
     nullify_cells_from_cols(Mat, T).
 
-% flatten a list
+% flatten a list (or multiple nested lists, such as a matrix)
 flatten([], []).
 flatten([A|B],L) :- 
     is_list(A),

@@ -1,6 +1,6 @@
+% Returns the positions of a fulcrum in the matrix
 find_fulcrums(Mat, Fulcrums) :-
     find_fulcrums_aux(Mat, 0, [], Fulcrums).
-
 
 find_fulcrums_aux([], _, Fulcrums, Fulcrums).
 find_fulcrums_aux([Row | T], RowNum, Fulcrums, Res) :-
@@ -8,7 +8,6 @@ find_fulcrums_aux([Row | T], RowNum, Fulcrums, Res) :-
     NextRow is RowNum + 1,
     append(Fulcrums, RowFulcrums, NextFulcrums),
     find_fulcrums_aux(T, NextRow, NextFulcrums, Res).
-
 
 find_fulcrums_cols([], _, _, []).
 find_fulcrums_cols([H | T], RowNum, ColNum, [[RowNum, ColNum] | Fulcrums]) :-
@@ -20,6 +19,6 @@ find_fulcrums_cols([H | T], RowNum, ColNum, Fulcrums) :-
     NextCol is ColNum + 1,
     find_fulcrums_cols(T, RowNum, NextCol, Fulcrums).
 
-
+% Converts a solution into the input format of our solver
 convert_mat_to_puzzle(Mat, Rows, Cols, Domain, [Rows, Cols, Domain, Fulcrums]) :-
     find_fulcrums(Mat, Fulcrums).
