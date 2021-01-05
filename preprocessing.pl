@@ -1,7 +1,7 @@
 :- use_module(library(lists)).
 :- use_module(library(samsort)).
 
-
+% FInds the duplicate elements Dups in a list L
 find_dups(L, Dups) :-
     samsort(L, SortedL),
     find_dups_aux(SortedL, DupsWithDups),
@@ -24,12 +24,12 @@ create_matrix(Rows, Cols, [H | T]) :-
     NextRows is Rows - 1,
     create_matrix(NextRows, Cols, T).
 
-
+% Returns a matrix row
 get_row(Mat, RowNum, Row) :-
     ActualRowNum is RowNum + 1,
     element(ActualRowNum, Mat, Row).
 
-
+% Returns a matrix column
 get_col(Mat, ColNum, Col) :-
     ActualColNum is ColNum + 1,
     get_col_aux(Mat, ActualColNum, Col).
@@ -84,10 +84,13 @@ set_val([H | T], Val) :-
     \+ var(H),
     set_val(T, Val).
 
+% Creates two lists: The first contains the indexes of the rows that contain fulcrums and 
+% the second conatins the indexes of the columns that contain fulcrums (contains duplicates which is important)
 get_fulcrum_lines_cols([], [], []).
 get_fulcrum_lines_cols([[Row, Col] | T], [Row | Lines], [Col | Cols]) :-
     get_fulcrum_lines_cols(T, Lines, Cols).
 
+% Nullifies (puts a 0) cells that don't have fulcrums in its row or column
 nullify_cells(Mat, Lines, Cols) :-
     % Cut because we know there is only 1 solution possible
     nullify_cells_aux(Mat, 0, Lines, Cols).
@@ -135,7 +138,7 @@ nullify_cells_from_cols(Mat, [H | T]) :-
     set_val(Col, 0),
     nullify_cells_from_cols(Mat, T).
 
-
+% flatten a list
 flatten([], []).
 flatten([A|B],L) :- 
     is_list(A),
@@ -145,12 +148,12 @@ flatten([A|B], [A|B1]) :-
     \+ is_list(A),
     flatten(B, B1).
 
-
+% Returns Vars that contains all the variables on the matrix
 get_vars_mat(Mat, Vars) :-
     flatten(Mat, Tmp),
     get_vars(Tmp, Vars).
 
-
+% Returns a list with all the uninstantiated variables from an input list 
 get_vars([], []).
 get_vars([A|B], [A|B1]) :- 
     var(A),

@@ -22,14 +22,14 @@ solve(Mat) :-
     create_matrix(Rows, Cols, Mat),
 
     % Preprocessing
-    get_fulcrum_lines_cols(Fulcrums, FLines, FCols),
+    get_fulcrum_lines_cols(Fulcrums, FLines, FCols),    % Get list of rows and cols that have fulcrums
     sort(FLines, UniqueFLines),
     sort(FCols, UniqueFCols),
     % trace,
-    nullify_cells(Mat, UniqueFLines, UniqueFCols),
-    place_fulcrums(Mat, Fulcrums),
-    nullify_cells_from_border_fulcrums(Mat, Rows, Cols, Fulcrums),
-    nullify_cells_from_multiple_fulcrums(Mat, FLines, FCols),
+    nullify_cells(Mat, UniqueFLines, UniqueFCols),  % Nullify cells with zero fulcrums in a row or in a column
+    place_fulcrums(Mat, Fulcrums),  % Place fulcrums in the matrix
+    nullify_cells_from_border_fulcrums(Mat, Rows, Cols, Fulcrums),  % Nullifies rows or columns when the fulcrum is in a border
+    nullify_cells_from_multiple_fulcrums(Mat, FLines, FCols),   % Nullify cells on rows or columns that contain multiple fulcrums
 
     % Apply domain
     get_vars_mat(Mat, Vars),
