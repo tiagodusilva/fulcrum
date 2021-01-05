@@ -6,6 +6,7 @@
 :- ensure_loaded('preprocessing.pl').
 :- ensure_loaded('restrictions.pl').
 :- ensure_loaded('generate.pl').
+:- ensure_loaded('convert_mat_to_puzzle.pl').
 
 
 reset_timer :- statistics(walltime,_).    
@@ -15,10 +16,13 @@ print_time :-
     % TS is ((T//10)*10)/1000,
     % nl, write('Time: '), write(T), write('s'), nl, nl.
 
+puzzle(Sol) :-
+    puzzle_73(Puzzle),
+    puzzle(Puzzle, Sol).
 
-solve(Mat) :-
+puzzle(Puzzle, Mat) :-
     % Setup
-    puzzle(Rows, Cols, Domain, Fulcrums),
+    Puzzle = [Rows, Cols, Domain, Fulcrums],
     create_matrix(Rows, Cols, Mat),
 
     % Preprocessing
@@ -47,12 +51,12 @@ solve(Mat) :-
     show_solution(Mat).
 
 
+generate(Puzzle) :-
+    generate(6, 8, 6, 5, Puzzle).
 
-generate(Mat) :-
-    Rows is 6,
-    Cols is 8,
-    Domain is 6,
-    NoFulcrums is 5,
+
+generate(Rows, Cols, Domain, NoFulcrums, Puzzle) :-
+
     % Setup
     create_matrix(Rows, Cols, Mat),
     flatten(Mat, Vars),
@@ -64,6 +68,7 @@ generate(Mat) :-
     get_cardinality_list_with_fulcrums(Domain, NoFulcrums, CL),
     global_cardinality(Vars, CL),
     
+    remove_some_symmetry(Mat, Rows, Cols),
 
     restrict_digit_count(Mat, Domain, Rows, Cols, RowCount, ColCount),
     force_full_sized_puzzle(RowCount, ColCount),
@@ -78,5 +83,5 @@ generate(Mat) :-
     print_time,
 
     % Solution
-    show_solution(Mat).
-
+    show_solution(Mat),
+    convert_mat_to_puzzle(Mat, Rows, Cols, Domain, Puzzle).

@@ -65,6 +65,20 @@ force_full_sized_puzzle(RowCount, ColCount) :-
     (LCFulcrums #> 0) #\/ (LCDigits #>= 2).
 
 
+remove_some_symmetry(Mat, Rows, Cols) :-
+    Mat = [FRow | _],
+    last(Mat, LRow),
+    get_col(Mat, 0 , FCol),
+    LastColNum is Cols - 1,
+    get_col(Mat, LastColNum, LCol),
+    filled_length(RCoeffs, Cols),
+    filled_length(CCoeffs, Rows),
+    scalar_product(RCoeffs, FRow, #=, FR),
+    scalar_product(RCoeffs, LRow, #>=, FR),
+    scalar_product(CCoeffs, FCol, #=, FC),
+    scalar_product(CCoeffs, LCol, #>=, FC).
+
+
 restrict_cells_with_empty_col_and_row([], _, _).
 restrict_cells_with_empty_col_and_row([Row | Mat], [R | RowCount], ColCount) :-
     restr_cells_empty_col(Row, R, ColCount),
